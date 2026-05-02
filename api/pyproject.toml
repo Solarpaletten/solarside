@@ -1,0 +1,65 @@
+[project]
+name = "solar-core"
+version = "0.1.0"
+description = "Solar Core — AI-операционный слой для экосистемы Solar (Melasa Rail, Vagonupaletas, SOLARPALETTEN, YPL Group)"
+authors = [
+    { name = "Solar Team", email = "team@solar.dev" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+
+dependencies = [
+    # Web framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+
+    # AI providers
+    "anthropic>=0.39.0",
+    "openai>=1.54.0",  # для DeepSeek (OpenAI-compatible API)
+    "httpx>=0.27.0",
+
+    # Database
+    "sqlalchemy>=2.0.36",
+    "asyncpg>=0.30.0",       # для PostgreSQL
+    "aiosqlite>=0.20.0",     # для dev
+    "alembic>=1.14.0",
+    "pgvector>=0.3.6",       # семантический поиск
+
+    # Utils
+    "python-dotenv>=1.0.1",
+    "structlog>=24.4.0",
+    "tenacity>=9.0.0",       # retry
+    "python-multipart>=0.0.17",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.27.0",
+    "ruff>=0.7.0",
+    "mypy>=1.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["solar_core"]

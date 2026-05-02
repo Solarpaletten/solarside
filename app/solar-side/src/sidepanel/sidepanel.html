@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solar</title>
+    <link rel="stylesheet" href="../styles/sidepanel.css" />
+  </head>
+  <body>
+    <header class="solar-header">
+      <div class="solar-brand">
+        <img src="../../icons/icon-32.png" alt="" class="solar-logo" />
+        <span class="solar-brand-name">Solar</span>
+        <span id="solar-status" class="solar-status">…</span>
+      </div>
+      <div class="solar-header-actions">
+        <button id="solar-history-btn" class="solar-icon-btn" title="History">⌚</button>
+        <button id="solar-settings-btn" class="solar-icon-btn" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <!-- ─── Action selector (always visible above content) ─── -->
+    <section class="solar-action-bar" aria-label="Action selector">
+      <button class="solar-action" data-action="summarize" data-language="auto" aria-pressed="true">
+        <span class="solar-a-icon">≡</span>
+        <span>Summarize</span>
+      </button>
+      <button class="solar-action" data-action="translate" data-language="ru">
+        <span class="solar-a-icon">⇄</span>
+        <span>Translate</span>
+      </button>
+      <button class="solar-action" data-action="extract" data-language="auto">
+        <span class="solar-a-icon">⌘</span>
+        <span>Extract</span>
+      </button>
+    </section>
+
+    <!-- ─── Settings panel (hidden by default) ─── -->
+    <section id="solar-settings" class="solar-settings hidden">
+      <label>
+        Core URL
+        <input type="text" id="solar-base-url" placeholder="http://localhost:8000" />
+      </label>
+      <label>
+        API key
+        <input type="password" id="solar-api-key" placeholder="dev-key-1" />
+      </label>
+      <div class="row">
+        <button id="solar-save-settings" class="solar-btn solar-btn-primary">Save</button>
+        <button id="solar-test-connection" class="solar-btn">Test</button>
+      </div>
+      <p id="solar-settings-msg" class="solar-msg"></p>
+    </section>
+
+    <!-- ─── Empty state ─── -->
+    <section id="solar-empty" class="solar-empty">
+      <div class="solar-empty-illustration" aria-hidden="true">✦</div>
+      <h2>Highlight something</h2>
+      <p>Select any text on a page → click the orange <strong>Solar</strong> button → result appears here.</p>
+      <p class="solar-empty-hint">Tip: hover the floating button for quick actions.</p>
+    </section>
+
+    <!-- ─── Loading state (critical) ─── -->
+    <section id="solar-loading" class="solar-loading hidden">
+      <div class="solar-spinner"></div>
+      <p class="solar-loading-title">Processing with Solar…</p>
+      <p id="solar-loading-detail" class="solar-loading-detail"></p>
+    </section>
+
+    <!-- ─── Error state ─── -->
+    <section id="solar-error" class="solar-error hidden">
+      <div class="solar-error-icon" aria-hidden="true">!</div>
+      <h3 id="solar-error-title">Something went wrong</h3>
+      <p id="solar-error-msg"></p>
+      <p id="solar-error-hint" class="solar-error-hint"></p>
+      <div class="solar-error-actions">
+        <button id="solar-error-retry" class="solar-btn solar-btn-primary">Try again</button>
+        <button id="solar-error-settings" class="solar-btn">Open settings</button>
+      </div>
+    </section>
+
+    <!-- ─── Result state ─── -->
+    <section id="solar-result" class="solar-result hidden">
+      <div class="solar-meta">
+        <span id="solar-result-action" class="solar-pill"></span>
+        <span id="solar-result-provider" class="solar-pill solar-pill-muted"></span>
+        <span id="solar-result-duration" class="solar-pill solar-pill-muted"></span>
+      </div>
+
+      <article id="solar-result-body" class="solar-card"></article>
+
+      <details class="solar-source">
+        <summary>Source</summary>
+        <blockquote id="solar-source-text"></blockquote>
+        <a id="solar-source-url" href="#" target="_blank" rel="noopener"></a>
+      </details>
+
+      <div class="solar-actions-row">
+        <button class="solar-btn" data-quick-action="copy">📋 Copy</button>
+        <button class="solar-btn solar-btn-primary" data-connector-action="solar_erp.create_note">
+          ⤴ Save to Solar
+        </button>
+      </div>
+    </section>
+
+    <!-- ─── History panel (hidden by default) ─── -->
+    <section id="solar-history" class="solar-history hidden">
+      <div class="solar-history-header">
+        <h3>Recent results</h3>
+        <button id="solar-history-clear" class="solar-link" title="Clear history">Clear</button>
+      </div>
+      <ul id="solar-history-list" class="solar-history-list"></ul>
+      <p id="solar-history-empty" class="solar-history-empty hidden">
+        No saved results yet. Highlight some text on a page to start.
+      </p>
+    </section>
+
+    <footer class="solar-footer">
+      <span class="solar-footer-text">Powered by Solar Core · v0.2</span>
+    </footer>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>

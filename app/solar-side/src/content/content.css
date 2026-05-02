@@ -1,0 +1,133 @@
+/* src/content/content.css — Solar Side v0.2 */
+/* Floating "Solar" button injected into the page. */
+
+.solar-floating-btn {
+  position: absolute;
+  z-index: 2147483647;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  min-height: 36px;
+  background: linear-gradient(135deg, #ff8a00 0%, #ff5e00 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 6px 20px rgba(255, 94, 0, 0.42),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0;
+  transform: translateY(4px) scale(0.96);
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out,
+    box-shadow 150ms ease,
+    filter 120ms ease;
+}
+
+.solar-floating-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.solar-floating-btn:hover {
+  filter: brightness(1.07);
+  box-shadow:
+    0 8px 24px rgba(255, 94, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.22);
+}
+
+.solar-floating-btn:active {
+  filter: brightness(0.96);
+  transform: translateY(1px) scale(0.99);
+}
+
+.solar-floating-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.solar-floating-btn.is-loading .solar-icon {
+  animation: solar-btn-spin 0.9s linear infinite;
+}
+
+@keyframes solar-btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.solar-floating-btn .solar-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  pointer-events: none;
+}
+
+.solar-floating-btn .solar-label {
+  pointer-events: none;
+}
+
+.solar-floating-btn .solar-caret {
+  font-size: 10px;
+  opacity: 0.85;
+  margin-left: 2px;
+  pointer-events: none;
+}
+
+/* ---------- Quick action menu (right-click on the button or long-press) ---------- */
+.solar-quick-menu {
+  position: absolute;
+  z-index: 2147483647;
+  display: none;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 4px;
+  background: #1a1a1f;
+  border: 1px solid #2a2a32;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+
+.solar-quick-menu.is-visible {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.solar-quick-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #ddd;
+  font-size: 13px;
+  text-align: left;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.solar-quick-menu button:hover {
+  background: #25252e;
+  color: #fff;
+}
+
+.solar-quick-menu button .solar-q-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}

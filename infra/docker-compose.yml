@@ -1,0 +1,45 @@
+services:
+  postgres:
+    # pgvector/pgvector:pg16 = official Postgres 16 image with the pgvector extension preinstalled
+    image: pgvector/pgvector:pg16
+    container_name: solar-core-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: solar_user
+      POSTGRES_PASSWORD: solar_dev_password
+      POSTGRES_DB: solarerp
+    ports:
+      - "5433:5432"
+    volumes:
+      - solar_pgdata:/var/lib/postgresql/data
+      - ./postgres/init-pgvector.sql:/docker-entrypoint-initdb.d/00-pgvector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solar_user -d solarerp"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  core:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    container_name: solar-core-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SOLAR_ENV: development
+      SOLAR_DATABASE_URL: postgresql+asyncpg://solar_user:solar_dev_password@postgres:5432/solarerp
+      SOLAR_API_KEYS: ${SOLAR_API_KEYS:-dev-key-1}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "solar_core.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ../api/solar_core:/app/solar_core:ro
+
+volumes:
+  solar_pgdata:
