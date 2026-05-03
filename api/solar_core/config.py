@@ -67,6 +67,19 @@ class AIKeysSettings(BaseSettings):
     deepseek_api_key: str = Field(default="", alias="DEEPSEEK_API_KEY")
 
 
+class TelegramSettings(BaseSettings):
+    """Telegram Bot API settings (no SOLAR_ prefix)."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    bot_token: str = Field(default="", alias="TELEGRAM_BOT_TOKEN")
+    default_chat_id: str = Field(default="", alias="TELEGRAM_DEFAULT_CHAT_ID")
+
+
 @lru_cache
 def get_settings() -> Settings:
     """Cached settings instance."""
@@ -77,3 +90,9 @@ def get_settings() -> Settings:
 def get_ai_keys() -> AIKeysSettings:
     """Cached AI keys instance."""
     return AIKeysSettings()
+
+
+@lru_cache
+def get_telegram_settings() -> TelegramSettings:
+    """Cached Telegram settings instance."""
+    return TelegramSettings()

@@ -1,6 +1,7 @@
 """Registry for connectors."""
 from solar_core.connectors.base import BaseConnector
 from solar_core.connectors.solar_erp import SolarERPConnector
+from solar_core.connectors.telegram import TelegramConnector
 from solar_core.core.exceptions import ConnectorError
 
 
@@ -18,6 +19,7 @@ class ConnectorRegistry:
 
     def _register_builtins(self) -> None:
         self.register(SolarERPConnector())
+        self.register(TelegramConnector())
 
     def register(self, connector: BaseConnector) -> None:
         self._connectors[connector.name] = connector
