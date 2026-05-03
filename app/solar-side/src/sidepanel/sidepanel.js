@@ -335,18 +335,28 @@ document.addEventListener("click", async (e) => {
 });
 
 function buildConnectorPayload(connector, action) {
+  // Helper: extract human-readable text from current result
+  const resultText = () =>
+    lastResponse?.result?.summary ||
+    lastResponse?.result?.translation ||
+    (lastResponse?.result ? JSON.stringify(lastResponse.result, null, 2) : "");
+
   if (connector === "solar_erp" && action === "create_note") {
-    const summary =
-      lastResponse?.result?.summary ||
-      lastResponse?.result?.translation ||
-      (lastResponse?.result ? JSON.stringify(lastResponse.result) : "");
     return {
       entity: "Solar",
       title: lastRequest?.url || "Web note",
-      body: summary,
+      body: resultText(),
       tags: ["solar-side", lastRequest?.action].filter(Boolean),
     };
   }
+
+  if (connector === "telegram" && action === "send_message") {
+    // chat_id omitted on purpose — backend uses TELEGRAM_DEFAULT_CHAT_ID
+    return {
+      text: resultText(),
+    };
+  }
+
   return {};
 }
 
