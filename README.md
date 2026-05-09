@@ -32,7 +32,8 @@ solar/
 
 ```bash
 cd api
-python -m venv .venv && source .venv/bin/activate
+python3 -m venv venv 
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env             # add ANTHROPIC_API_KEY=sk-ant-...
 uvicorn solar_core.main:app --reload --port 8000
