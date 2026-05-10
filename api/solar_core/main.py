@@ -11,6 +11,7 @@ from solar_core.api.routes import connectors as connectors_routes
 from solar_core.api.routes import documents as documents_routes
 from solar_core.api.routes import health as health_routes
 from solar_core.api.routes import process as process_routes
+from solar_core.api.routes import translate_air as translate_air_routes
 from solar_core.config import get_settings
 from solar_core.core.exceptions import SolarCoreError
 from solar_core.core.logging import get_logger, setup_logging
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     # Routes
     app.include_router(health_routes.router)
     app.include_router(process_routes.router)
+    app.include_router(translate_air_routes.router)
     app.include_router(documents_routes.router)
     app.include_router(connectors_routes.router)
 

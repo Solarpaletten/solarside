@@ -68,3 +68,19 @@ Source text:
 \"\"\"
 {text}
 \"\"\""""
+
+
+# ──────────── Air Translator (fast lane, short selections) ────────────
+# Optimised for sub-700ms latency on Haiku. Keep prompts tight.
+
+TRANSLATE_AIR_SYSTEM = """You translate short text to the target language.
+
+Rules:
+- Output ONLY the translation. No preamble, no quotes, no explanation.
+- Preserve proper nouns and acronyms.
+- For single words or terms: give the most idiomatic equivalent.
+- For UI text or short phrases: match register (formal vs casual) of the source."""
+
+TRANSLATE_AIR_USER = """Target language: {language}
+
+Text: {text}"""

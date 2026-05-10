@@ -14,7 +14,14 @@ from solar_core.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-TaskType = Literal["reasoning", "extraction", "translation", "summarization", "default"]
+TaskType = Literal[
+    "reasoning",
+    "extraction",
+    "translation",
+    "translation_air",
+    "summarization",
+    "default",
+]
 
 
 @dataclass
@@ -69,6 +76,14 @@ class AIRouter:
             candidates = [
                 ("anthropic", self.settings.ai_reasoning_model),
                 ("openai", "gpt-4o"),
+            ]
+        elif task == "translation_air":
+            # Fast lane for short selections (<120 chars).
+            # Haiku is ~3-5x faster than Sonnet and quality is plenty for words/phrases.
+            candidates = [
+                ("anthropic", self.settings.ai_extraction_model),
+                ("deepseek", "deepseek-chat"),
+                ("openai", "gpt-4o-mini"),
             ]
         else:  # default
             candidates = [
