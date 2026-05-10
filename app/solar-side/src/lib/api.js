@@ -77,6 +77,15 @@ export async function processText({ text, url, action, language = "en", vertical
   });
 }
 
+export async function translateAir({ text, targetLanguage = "ru", signal }) {
+  // Fast lane for short selections (<120 chars). Goes to Haiku, no DB write.
+  return request("/v1/translate-air", {
+    method: "POST",
+    body: { text, target_language: targetLanguage },
+    signal,
+  });
+}
+
 export async function listDocuments({ limit = 20, offset = 0 } = {}) {
   return request(`/v1/documents?limit=${limit}&offset=${offset}`);
 }

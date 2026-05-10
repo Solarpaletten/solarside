@@ -2,7 +2,7 @@
 // Background service worker (Manifest V3).
 // Owns: context menu, sidepanel, message routing, Core calls.
 
-import { processText, executeConnectorAction, checkHealth, ApiError } from "../lib/api.js";
+import { processText, executeConnectorAction, checkHealth, translateAir, ApiError } from "../lib/api.js";
 import { MSG } from "../lib/messages.js";
 
 // ---------- Install / startup ----------
@@ -66,6 +66,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         await openSidePanelAndProcess(tab, msg.payload);
         sendResponse({ ok: true });
+      } else if (msg.type === MSG.TRANSLATE_AIR) {
+        // Air translator: short-selection inline translation, no sidepanel.
+        const result = await translateAir(msg.payload);
+        sendResponse({ ok: true, data: result });
       } else if (msg.type === MSG.EXECUTE_ACTION) {
         const result = await executeConnectorAction(msg.payload);
         sendResponse({ ok: true, data: result });

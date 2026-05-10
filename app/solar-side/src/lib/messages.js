@@ -4,6 +4,8 @@
 export const MSG = {
   // From content → background → sidepanel
   PROCESS_SELECTION: "solar.process_selection",
+  // From content → background (Air translator, no sidepanel)
+  TRANSLATE_AIR: "solar.translate_air",
   // From sidepanel → background (connector action)
   EXECUTE_ACTION: "solar.execute_action",
   // From background → sidepanel (open with payload)
