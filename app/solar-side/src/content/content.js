@@ -318,8 +318,16 @@
     airIsLoading = true;
     showBubbleLoading();
 
-    const targetLanguage = detectTargetLanguage();
+    // Air mode uses "auto" — backend decides target based on source language
+    // (RU → EN, anything else → RU). This matches multilingual workflows.
+    const targetLanguage = "auto";
     const requestedFor = lastSelection;
+
+    console.log("[Solar Air] sending:", {
+      text: requestedFor.slice(0, 60) + (requestedFor.length > 60 ? "..." : ""),
+      length: requestedFor.length,
+      targetLanguage,
+    });
 
     chrome.runtime.sendMessage(
       {
@@ -333,14 +341,19 @@
         airIsLoading = false;
 
         if (chrome.runtime.lastError) {
-          console.warn("[Solar Air]", chrome.runtime.lastError);
+          console.warn("[Solar Air] runtime error:", chrome.runtime.lastError);
           showBubbleError("Background not responding");
           scheduleAirAutoHide();
           return;
         }
 
+        console.log("[Solar Air] response:", resp);
+
         // Guard: another selection may have happened while we waited.
-        if (airActiveForSelection !== requestedFor) return;
+        if (airActiveForSelection !== requestedFor) {
+          console.log("[Solar Air] selection changed, dropping response");
+          return;
+        }
 
         if (!resp || !resp.ok) {
           const msg = resp?.status === 0

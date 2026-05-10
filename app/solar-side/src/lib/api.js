@@ -77,8 +77,9 @@ export async function processText({ text, url, action, language = "en", vertical
   });
 }
 
-export async function translateAir({ text, targetLanguage = "ru", signal }) {
-  // Fast lane for short selections (<120 chars). Goes to Haiku, no DB write.
+export async function translateAir({ text, targetLanguage = "auto", signal }) {
+  // Fast lane for short selections (<1000 chars). Goes to Haiku, no DB write.
+  // targetLanguage="auto" lets backend pick: RU→EN, otherwise→RU.
   return request("/v1/translate-air", {
     method: "POST",
     body: { text, target_language: targetLanguage },

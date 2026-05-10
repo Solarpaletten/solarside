@@ -68,7 +68,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ ok: true });
       } else if (msg.type === MSG.TRANSLATE_AIR) {
         // Air translator: short-selection inline translation, no sidepanel.
+        console.log("[Solar bg] TRANSLATE_AIR payload:", msg.payload);
         const result = await translateAir(msg.payload);
+        console.log("[Solar bg] TRANSLATE_AIR result:", {
+          translation: result?.translation?.slice(0, 60),
+          model: result?.model,
+          duration_ms: result?.duration_ms,
+        });
         sendResponse({ ok: true, data: result });
       } else if (msg.type === MSG.EXECUTE_ACTION) {
         const result = await executeConnectorAction(msg.payload);
