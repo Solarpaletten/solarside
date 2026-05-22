@@ -5,6 +5,7 @@ import {
   checkHealth,
   getSettings,
   setSettings,
+  ENDPOINTS,
   ApiError,
 } from "../lib/api.js";
 import {
@@ -25,6 +26,8 @@ const els = {
   settings: $("solar-settings"),
   baseUrl: $("solar-base-url"),
   apiKey: $("solar-api-key"),
+  envProd: $("solar-env-prod"),
+  envLocal: $("solar-env-local"),
   saveSettings: $("solar-save-settings"),
   testConnection: $("solar-test-connection"),
   settingsMsg: $("solar-settings-msg"),
@@ -89,11 +92,30 @@ async function refreshHealth() {
 }
 
 // ──────────── Settings ────────────
+function syncEnvRadio(url) {
+  // Reflect the current URL in the dev/prod radio. A custom URL (neither known
+  // endpoint) leaves both unchecked, which is fine — the text field still rules.
+  if (url === ENDPOINTS.local) {
+    els.envLocal.checked = true;
+  } else if (url === ENDPOINTS.production) {
+    els.envProd.checked = true;
+  }
+}
+
 async function loadSettings() {
   const s = await getSettings();
   els.baseUrl.value = s.baseUrl;
   els.apiKey.value = s.apiKey;
+  syncEnvRadio(s.baseUrl);
 }
+
+// Dev/Prod toggle: clicking a radio fills the URL field with that endpoint.
+// The user still presses Save to persist (keeps one explicit commit point).
+function onEnvChange(env) {
+  els.baseUrl.value = ENDPOINTS[env] || els.baseUrl.value;
+}
+els.envProd.addEventListener("change", () => onEnvChange("production"));
+els.envLocal.addEventListener("change", () => onEnvChange("local"));
 
 els.settingsBtn.addEventListener("click", () => {
   els.settings.classList.toggle("hidden");
@@ -104,6 +126,7 @@ els.saveSettings.addEventListener("click", async () => {
     baseUrl: els.baseUrl.value.trim(),
     apiKey: els.apiKey.value.trim(),
   });
+  syncEnvRadio(els.baseUrl.value.trim());
   els.settingsMsg.textContent = "Saved.";
   els.settingsMsg.className = "solar-msg ok";
   await refreshHealth();

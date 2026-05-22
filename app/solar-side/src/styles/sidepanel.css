@@ -122,6 +122,27 @@ html, body {
   font-size: 13px;
 }
 .solar-settings .row { display: flex; gap: 8px; margin-top: 8px; }
+
+/* Dev/Prod environment toggle (4C.9b) */
+.solar-env-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.solar-env-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #18181c;
+  border: 1px solid #2a2a2f;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #ccc;
+  cursor: pointer;
+}
+.solar-env-opt input { width: auto; margin: 0; accent-color: #ff7a00; }
 .solar-msg {
   font-size: 12px;
   margin: 8px 0 0 0;
