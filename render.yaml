@@ -58,6 +58,21 @@ services:
       - key: SOLAR_SECRET_KEY
         generateValue: true
 
+      # ---- Rate limiting / abuse protection (4C.9d) ----
+      - key: SOLAR_RATE_LIMIT_ENABLED
+        value: "true"
+      - key: SOLAR_RATE_LIMIT_REQUESTS
+        value: "30"
+      - key: SOLAR_RATE_LIMIT_WINDOW_SECONDS
+        value: "60"
+      - key: SOLAR_MAX_TEXT_CHARS
+        value: "20000"
+      # Origin allow-list. Leave blank to rely on CORS only. To lock to YOUR
+      # extension, set in the dashboard:  chrome-extension://<your-id>
+      # (find the ID at chrome://extensions). Comma-separated; localhost ok too.
+      - key: SOLAR_ALLOWED_ORIGINS
+        sync: false
+
       # ---- AI provider keys (NO prefix — bare aliases per config.py) ----
       # Typed by hand in the Render dashboard. NEVER in git.
       - key: ANTHROPIC_API_KEY

@@ -31,6 +31,25 @@ class Settings(BaseSettings):
     def api_keys_list(self) -> list[str]:
         return [k.strip() for k in self.api_keys.split(",") if k.strip()]
 
+    # --- Rate limiting / abuse protection (4C.9d) ---
+    # Per (api-key + client IP) sliding window. Generous enough for a human
+    # reading + translating, tight enough that a leaked key can't burn credits
+    # at machine speed. Tune via env without a code change.
+    rate_limit_enabled: bool = True
+    rate_limit_requests: int = 30          # max requests...
+    rate_limit_window_seconds: int = 60    # ...per this many seconds
+    # Largest accepted text payload (chars). Blocks giant abusive requests
+    # before they reach a paid AI provider. Air UX never needs this much.
+    max_text_chars: int = 20_000
+    # Optional origin allow-list (comma-separated). Empty = rely on CORS only.
+    # Set to your extension origin in production, e.g.
+    #   chrome-extension://<your-id>,http://localhost:3000
+    allowed_origins: str = ""
+
+    @property
+    def allowed_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
+
     # --- Database ---
     database_url: str = "sqlite+aiosqlite:///./solar_core.db"
 

@@ -89,3 +89,51 @@ The deploy is just a git push + a Render service. To roll back:
 - Code: `node solar-apply.js sprint-4c9a-render-air-first --rollback`, re-push.
 - Service: Render dashboard → the service → **Manual Deploy** → pick a previous commit,
   or **Suspend** the service to stop it entirely.
+
+---
+
+## Security hardening (Sprint 4C.9d)
+
+The public URL means anyone with the URL **and** a valid key can spend your
+Anthropic credits. 4C.9d adds three layers, all configurable via env (no code
+change to tune):
+
+### Rate limiting (on by default)
+
+Per `(api-key + client IP)`, sliding window. Defaults: **30 requests / 60s**.
+Over the limit → `429 Too Many Requests` with a `Retry-After` header. Tune in
+the Render dashboard:
+
+| Variable                          | Default | Meaning                          |
+|-----------------------------------|---------|----------------------------------|
+| `SOLAR_RATE_LIMIT_ENABLED`        | true    | master switch                    |
+| `SOLAR_RATE_LIMIT_REQUESTS`       | 30      | max requests per window          |
+| `SOLAR_RATE_LIMIT_WINDOW_SECONDS` | 60      | window length                    |
+| `SOLAR_MAX_TEXT_CHARS`            | 20000   | reject oversize payloads         |
+
+> In-memory limiter — correct for a single Render instance. If you scale to
+> multiple instances later, this becomes per-instance; move to a shared store
+> (Redis) at that point.
+
+### Payload cap
+
+Both `/v1/process` and `/v1/translate-air` reject text over 20k chars, so an
+abusive giant request can't reach a paid provider.
+
+### Origin lock (optional, tighter than CORS)
+
+By default any `chrome-extension://...` origin is accepted (plus localhost).
+To lock to **your** published extension only:
+
+1. Find your extension ID at `chrome://extensions` (e.g. `abcd...` 32 chars).
+2. In the Render dashboard set:
+   `SOLAR_ALLOWED_ORIGINS = chrome-extension://<your-id>,http://localhost:3000`
+3. Redeploy. Now only that exact origin passes CORS.
+
+Leave it blank during development; set it before sharing the product widely.
+
+### Key rotation
+
+If a key leaks: edit `SOLAR_API_KEYS` in the dashboard (comma-separated, so you
+can run old+new during a transition), redeploy, then update the extension's
+API-key field. The compromised `dev-key-1` is never used in production.
