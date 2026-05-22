@@ -58,8 +58,8 @@ const els = {
 // ──────────── State ────────────
 let lastRequest = null;
 let lastResponse = null;
-let activeAction = "summarize";
-let activeLanguage = "auto";
+let activeAction = "translate";
+let activeLanguage = "ru";
 
 // ──────────── View transitions ────────────
 const SECTIONS = ["empty", "loading", "error", "result", "history"];

@@ -70,14 +70,14 @@
     m.className = "solar-quick-menu";
     m.setAttribute("role", "menu");
     m.innerHTML = `
-      <button type="button" data-action="summarize" data-language="auto" role="menuitem">
-        <span class="solar-q-icon">≡</span><span class="solar-q-label">Summarize</span>
-      </button>
       <button type="button" data-action="translate" data-language="ru" role="menuitem">
         <span class="solar-q-icon">⇄</span><span class="solar-q-label">Translate to RU</span>
       </button>
       <button type="button" data-action="translate" data-language="en" role="menuitem">
         <span class="solar-q-icon">⇄</span><span class="solar-q-label">Translate to EN</span>
+      </button>
+      <button type="button" data-action="summarize" data-language="auto" role="menuitem">
+        <span class="solar-q-icon">≡</span><span class="solar-q-label">Summarize</span>
       </button>
       <button type="button" data-action="extract" data-language="auto" role="menuitem">
         <span class="solar-q-icon">⌘</span><span class="solar-q-label">Extract entities</span>
@@ -433,7 +433,7 @@
       closeMenu();
       return;
     }
-    runAction("summarize", "auto");
+    runAction("translate", "ru");
   }
 
   async function runAction(action, language) {
