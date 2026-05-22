@@ -73,7 +73,18 @@ def create_app() -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+    elif settings.allowed_origins_list:
+        # Tightest lock: an explicit allow-list (e.g. your exact extension ID).
+        # Set SOLAR_ALLOWED_ORIGINS once you know the published extension ID.
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=settings.allowed_origins_list,
+            allow_credentials=False,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
     else:
+        # Fallback: any chrome-extension origin + localhost dashboard.
         app.add_middleware(
             CORSMiddleware,
             allow_origin_regex=r"^chrome-extension://[a-z]+$",

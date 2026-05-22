@@ -75,7 +75,12 @@ LANG_NAMES = {
 
 
 class TranslateAirRequest(BaseModel):
-    text: str = Field(..., min_length=1, description="Selected text to translate.")
+    # max_length caps abusive payloads before they hit a paid AI provider.
+    # 20k chars is far more than the Air bubble's short-selection use case.
+    text: str = Field(
+        ..., min_length=1, max_length=20_000,
+        description="Selected text to translate.",
+    )
     target_language: str = Field(
         default="auto",
         description="Target language ISO code, or 'auto' for smart detection.",
