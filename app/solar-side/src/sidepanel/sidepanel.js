@@ -156,7 +156,9 @@ document.querySelectorAll(".solar-action").forEach((btn) => {
 // ──────────── Process flow ────────────
 async function runProcess(req) {
   lastRequest = req;
-  setActiveAction(req.action);
+  // Reflect BOTH action and language in the action bar so the highlighted
+  // button always matches what is actually running (translate-first invariant).
+  setActiveAction(req.action, req.language || null);
   els.loadingDetail.textContent = `${req.action} · ${req.text.length} chars`;
   show("loading");
 
@@ -487,7 +489,11 @@ async function checkPending() {
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === MSG.OPEN_SIDEPANEL && msg.payload) {
-    runProcess(msg.payload);
+    // Defensive: only run if we haven't already handled this exact request
+    // via checkPending (avoids double-run and stale-action flashes).
+    if (!lastRequest || lastRequest.text !== msg.payload.text) {
+      runProcess(msg.payload);
+    }
   }
 });
 
@@ -495,6 +501,8 @@ chrome.runtime.onMessage.addListener((msg) => {
 (async function init() {
   await loadSettings();
   await refreshHealth();
-  setActiveAction(activeAction);
+  // Translate-first invariant: the action bar shows Translate active on open,
+  // before any pending request is processed.
+  setActiveAction("translate", "ru");
   await checkPending();
 })();
