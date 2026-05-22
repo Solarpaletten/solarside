@@ -27,8 +27,10 @@ class ProcessRequest(BaseModel):
 
 
 class ProcessResponse(BaseModel):
-    document_id: str
-    action_id: str
+    # Optional: in Air-first / DB-unavailable mode the AI result is returned
+    # unsaved, so these IDs are None and `saved` is False.
+    document_id: str | None = None
+    action_id: str | None = None
     action: str
     result: dict[str, Any]
     saved: bool = True
