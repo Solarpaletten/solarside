@@ -2,8 +2,16 @@
 // Solar Core API client. Shared between background, sidepanel, popup, content.
 // Uses fetch — works in Manifest V3 service workers.
 
-const DEFAULT_BASE = "http://localhost:8000";
-const DEFAULT_KEY = "dev-key-1";
+// Named endpoints for the dev/prod toggle (4C.9b). A fresh install defaults to
+// PRODUCTION so the extension works out of the box without a local backend.
+// Switch to LOCAL in settings only when running Docker on your own machine.
+export const ENDPOINTS = {
+  production: "https://solar-core-rrp5.onrender.com",
+  local: "http://localhost:8000",
+};
+
+const DEFAULT_BASE = ENDPOINTS.production;
+const DEFAULT_KEY = "";  // no baked-in key; the prod key is entered in settings
 
 export async function getSettings() {
   const stored = await chrome.storage.sync.get(["solar_base_url", "solar_api_key"]);

@@ -37,13 +37,23 @@
 
     <!-- ─── Settings panel (hidden by default) ─── -->
     <section id="solar-settings" class="solar-settings hidden">
+      <div class="solar-env-toggle" role="radiogroup" aria-label="Backend environment">
+        <label class="solar-env-opt">
+          <input type="radio" name="solar-env" id="solar-env-prod" value="production" checked />
+          <span>Production</span>
+        </label>
+        <label class="solar-env-opt">
+          <input type="radio" name="solar-env" id="solar-env-local" value="local" />
+          <span>Local (dev)</span>
+        </label>
+      </div>
       <label>
         Core URL
-        <input type="text" id="solar-base-url" placeholder="http://localhost:8000" />
+        <input type="text" id="solar-base-url" placeholder="https://solar-core-rrp5.onrender.com" />
       </label>
       <label>
         API key
-        <input type="password" id="solar-api-key" placeholder="dev-key-1" />
+        <input type="password" id="solar-api-key" placeholder="paste production key" />
       </label>
       <div class="row">
         <button id="solar-save-settings" class="solar-btn solar-btn-primary">Save</button>
