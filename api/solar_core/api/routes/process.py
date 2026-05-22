@@ -54,35 +54,56 @@ async def process(
         if not title:
             title = f"Document via {req.action}"
 
-    # 3. Persist document + action
-    docs = DocumentService(db)
-    doc = await docs.create(
-        title=title,
-        selected_text=req.text,
-        source_url=req.url,
-        ai_result=result.data,
-        language=req.language,
-        vertical=req.vertical,
-    )
-    action_record = await docs.add_action_record(
-        document_id=doc.id,
-        action_type=req.action,
-        status="done" if result.success else "failed",
-        payload={"language": req.language, "url": req.url},
-        result=result.data,
-        error=result.error,
-        provider=result.provider,
-        model=result.model,
-        duration_ms=result.duration_ms,
-    )
-
-    return ProcessResponse(
-        document_id=doc.id,
-        action_id=action_record.id,
-        action=req.action,
-        result=result.data,
-        saved=True,
-        provider=result.provider,
-        model=result.model,
-        duration_ms=result.duration_ms,
-    )
+    # 3. Persist document + action.
+    # Air-first production may run WITHOUT a database. The AI action above has
+    # already succeeded, so we never want a missing/unavailable DB to turn a
+    # good result into a 500. If persistence fails, return the result with
+    # saved=False instead of crashing — the user still gets their answer.
+    try:
+        docs = DocumentService(db)
+        doc = await docs.create(
+            title=title,
+            selected_text=req.text,
+            source_url=req.url,
+            ai_result=result.data,
+            language=req.language,
+            vertical=req.vertical,
+        )
+        action_record = await docs.add_action_record(
+            document_id=doc.id,
+            action_type=req.action,
+            status="done" if result.success else "failed",
+            payload={"language": req.language, "url": req.url},
+            result=result.data,
+            error=result.error,
+            provider=result.provider,
+            model=result.model,
+            duration_ms=result.duration_ms,
+        )
+        return ProcessResponse(
+            document_id=doc.id,
+            action_id=action_record.id,
+            action=req.action,
+            result=result.data,
+            saved=True,
+            provider=result.provider,
+            model=result.model,
+            duration_ms=result.duration_ms,
+        )
+    except Exception as exc:  # noqa: BLE001 — degrade gracefully without a DB
+        logger.warning(
+            "process_persist_skipped",
+            action=req.action,
+            detail=str(exc),
+            note="Result returned to client unsaved (Air-first / DB unavailable).",
+        )
+        return ProcessResponse(
+            document_id=None,
+            action_id=None,
+            action=req.action,
+            result=result.data,
+            saved=False,
+            provider=result.provider,
+            model=result.model,
+            duration_ms=result.duration_ms,
+        )

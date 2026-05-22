@@ -1,0 +1,74 @@
+# ════════════════════════════════════════════════════════════════
+# Solar Core — Render Blueprint (Sprint 4C.9a: Air-first production)
+# ════════════════════════════════════════════════════════════════
+#
+# Scope of this deploy (decided by Council 22 May 2026 — "Hybrid A"):
+#   WORKS on production:  Air translate (/v1/translate-air), health, /v1/process
+#                         (the AI result returns even with no DB — saved=false)
+#   DEFERRED to 4C.9e:    Postgres + pgvector + Workspace persistence
+#
+# This file deploys ONE web service (the FastAPI Core), no database.
+# It is committed to git, so it contains NO secrets — every secret is
+# marked `sync: false`, meaning YOU type it in the Render dashboard once.
+#
+# How to use:
+#   1. Push this file to the repo (SolarBox pipeline does the commit).
+#   2. Render Dashboard → New → Blueprint → pick the repo → it reads this file.
+#   3. Fill the `sync: false` secrets when prompted (see docs/DEPLOY.md).
+#
+# Env var names below are taken VERBATIM from api/solar_core/config.py:
+#   - Settings has env_prefix="SOLAR_"  → SOLAR_ENV, SOLAR_API_KEYS, etc.
+#   - AIKeysSettings uses bare aliases   → ANTHROPIC_API_KEY (NO prefix)
+#   Mixing these up = deploy that boots but can't reach Anthropic. Don't.
+# ════════════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: solar-core
+    runtime: docker
+    # api/ holds the Dockerfile; build context is api/ so COPY paths match.
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    # US-East sits closest to Anthropic us-east → lowest extra hop latency.
+    # (Measured/confirmed in Sprint 4C.9c.)
+    region: ohio
+    plan: starter          # paid, always-on (~$7/mo). NOT free (free sleeps → cold start kills Air UX).
+    healthCheckPath: /v1/health
+    autoDeploy: true       # redeploy on push to the deploy branch
+    envVars:
+      # ---- Application (SOLAR_ prefix) ----
+      - key: SOLAR_ENV
+        value: production
+      - key: SOLAR_DEBUG
+        value: "false"
+      - key: SOLAR_LOG_LEVEL
+        value: INFO
+      # Air-first: no DB. Leave the SQLite default OUT and DON'T set a Postgres
+      # URL. With no SOLAR_DATABASE_URL, config.py default is sqlite+aiosqlite,
+      # which on Render's ephemeral disk is fine for the (unused) Workspace path
+      # and lets the app boot. Air + health never touch it.
+      # When 4C.9e adds Postgres, set SOLAR_DATABASE_URL here (or sync:false).
+
+      # ---- Security (SOLAR_ prefix) ----
+      # NEW production key — the old dev-key-1 is COMPROMISED (in git history
+      # and chat logs). Render generates a fresh value; you copy it into the
+      # extension config in Sprint 4C.9b. Comma-separated list supported.
+      - key: SOLAR_API_KEYS
+        generateValue: true
+      - key: SOLAR_SECRET_KEY
+        generateValue: true
+
+      # ---- AI provider keys (NO prefix — bare aliases per config.py) ----
+      # Typed by hand in the Render dashboard. NEVER in git.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      # DEEPSEEK_API_KEY optional — add as sync:false if/when you use DeepSeek.
+
+      # ---- Telegram (optional, NO prefix) ----
+      # Uncomment + fill in the dashboard if you want prod Telegram delivery.
+      # - key: TELEGRAM_BOT_TOKEN
+      #   sync: false
+      # - key: TELEGRAM_DEFAULT_CHAT_ID
+      #   sync: false

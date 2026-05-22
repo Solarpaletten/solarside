@@ -32,9 +32,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         env=settings.env,
         db=settings.database_url.split("@")[-1] if "@" in settings.database_url else settings.database_url,
     )
-    # Auto-create tables on dev startup. In production: use Alembic migrations.
-    if settings.env == "development":
+    # Create tables on startup when a database is configured. This runs in all
+    # environments now, BUT is wrapped so an Air-first deploy WITHOUT a database
+    # (translate-air + health need no DB) starts cleanly instead of crashing.
+    # For mature production, replace this with Alembic migrations.
+    try:
         await init_db()
+        logger.info("solar_core_db_ready")
+    except Exception as exc:  # noqa: BLE001 — startup must survive a missing DB
+        logger.warning(
+            "solar_core_db_unavailable",
+            detail=str(exc),
+            note="Air translate + health still work; Workspace (save) is degraded.",
+        )
     yield
     logger.info("solar_core_shutdown")
 
@@ -49,17 +59,29 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS — extension and dashboard will call us from different origins.
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"] if settings.debug else [
-            "chrome-extension://",
-            "http://localhost:3000",
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # CORS — extension and dashboard call us from different origins.
+    # In production we can't list a bare "chrome-extension://" (no ID = invalid
+    # origin), so we match any chrome-extension origin by regex, plus localhost
+    # for the dashboard/dev. allow_credentials stays False with a regex origin
+    # (the two are incompatible per the CORS spec; the API uses an API-key
+    # header, not cookies, so credentials aren't needed).
+    if settings.debug:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=False,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+    else:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origin_regex=r"^chrome-extension://[a-z]+$",
+            allow_origins=["http://localhost:3000"],
+            allow_credentials=False,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     # Routes
     app.include_router(health_routes.router)
