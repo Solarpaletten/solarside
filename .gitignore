@@ -52,3 +52,13 @@ dist/
 # Misc
 *.log
 .tmp/
+
+# SolarBox pipeline tools & artifacts (not project code)
+solar-apply.js
+solar-queue.js
+install-autopilot.sh
+.solar-backups/
+.solar-bundles/
+.solar-history/
+.solar-queue/
+sprint/
